@@ -18,10 +18,22 @@ from utils.utils_image import read_image, save_image
 from utils.utils_json import write_json_to_file
 from engine.core.vis_helper import add_poseTrack_joint_connection_to_image, add_bbox_in_image
 
+
+import math
+import numpy
+import csv
+import angle
+import matplotlib.pyplot as plt
+
+
 zero_fill = 8
 
 logger = logging.getLogger(__name__)
 
+joint_list = ['nose', 'left_eye', 'right_eye','left_ear', 'right_ear', \
+               'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', \
+               'left_wrist', 'right_wrist', 'left_hip', 'right_hip', \
+               'left_knee', 'right_knee', 'left_ankle', 'right_ankle']
 
 def main():
     video()
@@ -33,7 +45,8 @@ def video():
     base_img_vis_save_dirs = './output/vis_img'
     json_save_base_dirs = './output/json'
     create_folder(json_save_base_dirs)
-    video_list = list_immediate_childfile_paths(base_video_path, ext=['mp3', 'mp4'])
+    video_list = list_immediate_childfile_paths(
+        base_video_path, ext=['mp3', 'mp4'])
     input_image_save_dirs = []
     SAVE_JSON = True
     SAVE_VIS_VIDEO = True
@@ -41,13 +54,17 @@ def video():
     SAVE_BOX_IMAGE = True
     base_img_vis_box_save_dirs = './output/vis_img_box'
     # 1.Split the video into images
+    angle_list = []
+    frame_nlist = []
+    angle_sum = []
 
     for video_path in tqdm(video_list):
         video_name = osp.basename(video_path)
         temp = video_name.split(".")[0]
         image_save_path = os.path.join(base_video_path, temp)
         image_vis_save_path = os.path.join(base_img_vis_save_dirs, temp)
-        image_vis_box_save_path = os.path.join(base_img_vis_box_save_dirs, temp)
+        image_vis_box_save_path = os.path.join(
+            base_img_vis_box_save_dirs, temp)
         input_image_save_dirs.append(image_save_path)
 
         create_folder(image_save_path)
@@ -92,48 +109,78 @@ def video():
                 prev_idx = 0
             if image_idx >= video_length - 1:
                 next_id = video_length - 1
-            prev_image_path = os.path.join(os.path.dirname(image_path), "{}.jpg".format(str(prev_idx).zfill(zero_fill)))
-            next_image_path = os.path.join(os.path.dirname(image_path), "{}.jpg".format(str(next_id).zfill(zero_fill)))
+            prev_image_path = os.path.join(os.path.dirname(
+                image_path), "{}.jpg".format(str(prev_idx).zfill(zero_fill)))
+            next_image_path = os.path.join(os.path.dirname(
+                image_path), "{}.jpg".format(str(next_id).zfill(zero_fill)))
 
             # current_image = read_image(image_path)
             # prev_image = read_image(prev_image_path)
             # next_image = read_image(next_image_path)
-
             bbox = xywh_box
-            keypoints = inference_PE(image_path, prev_image_path, next_image_path, bbox)
+            keypoints = inference_PE(
+                image_path, prev_image_path, next_image_path, bbox)
             person_info["keypoints"] = keypoints.tolist()[0]
+            x_a = person_info["keypoints"][5][0]
+            y_a = person_info["keypoints"][5][1]
+            x_b = person_info["keypoints"][11][0]
+            y_b = person_info["keypoints"][11][1]
+            # x_c = person_info["keypoints"][13][0]
+            # y_c = person_info["keypoints"][13][1]
+
+            frame_nlist.append(image_idx)
+            degree = angle.hip_cul(x_a, y_a, x_b, y_b)
+            angle_list.append(round(degree, 2))
+
+            # angle.trandition(person_info["keypoints"], angle_list)
+            
 
             # posetrack points
             new_coord = coco2posetrack_ord_infer(keypoints[0])
             # pose
             if SAVE_VIS_IMAGE:
-                image_save_path = os.path.join(os.path.join(base_img_vis_save_dirs, video_name), image_path.split("/")[-1])
+                image_save_path = os.path.join(os.path.join(
+                    base_img_vis_save_dirs, video_name), image_path.split("/")[-1])
                 if osp.exists(image_save_path):
                     current_image = read_image(image_save_path)
                 else:
                     current_image = read_image(image_path)
-                pose_img = add_poseTrack_joint_connection_to_image(current_image, new_coord, sure_threshold=0.3, flag_only_draw_sure=True)
+                pose_img = add_poseTrack_joint_connection_to_image(
+                    current_image, new_coord, sure_threshold=0.3, flag_only_draw_sure=True)
                 save_image(image_save_path, pose_img)
 
             if SAVE_BOX_IMAGE:
-                image_save_path = os.path.join(os.path.join(base_img_vis_box_save_dirs, video_name), image_path.split("/")[-1])
+                image_save_path = os.path.join(os.path.join(
+                    base_img_vis_box_save_dirs, video_name), image_path.split("/")[-1])
                 if osp.exists(image_save_path):
                     current_image = read_image(image_save_path)
                 else:
                     current_image = read_image(image_path)
-                xyxy_box = bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]
+                xyxy_box = bbox[0], bbox[1], bbox[0] + \
+                    bbox[2], bbox[1] + bbox[3]
                 box_image = add_bbox_in_image(current_image, xyxy_box)
                 save_image(image_save_path, box_image)
 
         if SAVE_JSON:
             joints_info = {"Info": video_candidates_list}
             temp = "result_" + video_name + ".json"
-            write_json_to_file(joints_info, os.path.join(json_save_base_dirs, temp))
+            write_json_to_file(joints_info, os.path.join(
+                json_save_base_dirs, temp))
             print("------->json Info save Complete!")
             print("------->Visual Video Compose Start")
         if SAVE_VIS_VIDEO:
-            image2video(os.path.join(base_img_vis_save_dirs, video_name), video_name)
+            image2video(os.path.join(
+                base_img_vis_save_dirs, video_name), video_name)
             print("------->Complete!")
+
+            angle.angleplt(frame_nlist, angle_list)
+            # for i in range(17):
+            #     joint_num: int = i
+            #     column_xlist = [r[joint_num * 2] for r in angle_list]
+            #     column_ylist = [r[joint_num * 2 + 1] for r in angle_list]
+            #     plt_path = './plt/' + str(joint_num).zfill(2) + '_' + joint_list[joint_num] + '.jpg'
+            #     angle.coordplt(frame_nlist, column_xlist, column_ylist, plt_path)
+                
 
 
 if __name__ == '__main__':
