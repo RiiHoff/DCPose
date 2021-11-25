@@ -129,8 +129,8 @@ def video():
             # y_c = person_info["keypoints"][13][1]
 
             frame_nlist.append(image_idx)
-            degree = angle.hip_cul(x_a, y_a, x_b, y_b)
-            angle_list.append(round(degree, 2))
+            est_list = angle.hip_cul(x_a, y_a, x_b, y_b)
+            angle_list.append(round(est_list[14], 2))
 
             # angle.trandition(person_info["keypoints"], angle_list)
             
@@ -173,7 +173,8 @@ def video():
                 base_img_vis_save_dirs, video_name), video_name)
             print("------->Complete!")
 
-            angle.angleplt(frame_nlist, angle_list)
+            # angle.angleplt(frame_nlist, angle_list)
+            angle.csvplt(video_name, est_list)
             # for i in range(17):
             #     joint_num: int = i
             #     column_xlist = [r[joint_num * 2] for r in angle_list]

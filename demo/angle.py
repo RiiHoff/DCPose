@@ -1,5 +1,12 @@
+import numpy as np
+import pandas as pd
+import csv
+import matplotlib.pyplot as plt
+
+est_list = []
+sta_list = []
+
 def inside_hip_cul(x_a, y_a, x_b, y_b, x_c, y_c):
-    import numpy as np
 
     a_sq = (x_b - x_c)**2 + (y_b - y_c)**2
     a = np.sqrt(a_sq)
@@ -11,16 +18,15 @@ def inside_hip_cul(x_a, y_a, x_b, y_b, x_c, y_c):
     theta = np.arccos(cos)
     degree = np.rad2deg(theta)
 
-    print(x_a, y_a, x_b, y_b, x_c, y_c, a_sq, b_sq, c_sq, a, b, c, cos, theta, degree)
-    csvplt(x_a, y_a, x_b, y_b, x_c, y_c, a_sq, b_sq, c_sq, a, b, c, cos, theta, degree)
+    est_list = [x_a, y_a, x_b, y_b, x_c, y_c, a_sq, b_sq, c_sq, a, b, c, cos, theta, degree]
 
-    return degree
+    # output(est_list)
+    csvplt(est_list)
+
+    return est_list
 
 
 def hip_cul(x_a, y_a, x_b, y_b):
-    import numpy as np
-
-    est_list = []
 
     x_c = x_a 
     y_c = y_b
@@ -36,33 +42,32 @@ def hip_cul(x_a, y_a, x_b, y_b):
     if x_a <= x_b:
         degree = 180 - degree
 
-    est_list.append(x_a)
-    est_list.append(y_a)
-    est_list.append(x_b)
-    est_list.append(y_b)
-    est_list.append(x_c)
-    est_list.append(a_sq)
-    est_list.append(b_sq)
-    est_list.append(c_sq)
-    est_list.append(a)
-    est_list.append(b)
-    est_list.append(c)
-    est_list.append(cos)
-    est_list.append(theta)
-    est_list.append(degree)
+    est_list = [x_a, y_a, x_b, y_a, x_c, y_a, a_sq, b_sq, c_sq, a, b, c, cos, theta, degree]
+    
+    csv_stack(est_list)
 
-    # output(est_list)
-    csvplt(est_list)
+    return est_list
 
-    return degree
+def csv_stack(est_list):
+    
+    sta_list.append(est_list)
 
 
-def csvplt(list):
-    import csv
+def csvplt(input_name, est_list):
 
-    with open('dcpose_drgree_list.csv', 'a', newline='') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        writer.writerow(list)
+
+    est_header = ['sho_x(coord)', 'sho_y(coord)', 'hip_x(coord)', 'hip_y(coord)', 'c_x(coord)', 'c_y(coord)', \
+                  'a_sq(dis)', 'b_sq(dis)', 'c_sq(dis)', 'a(dis)', 'b(dis)', 'c(dis)',  \
+                  'cos(rad))', 'theta(theta)', 'degree(deg)']
+
+    save_path = './est_plot/' + input_name + '_plot.csv'
+
+    with open(save_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(est_header)
+        writer.writerows(est_list)
+
+
 
 def output(list):
     print("x_a: %s, y_a: %s\n"%(list[0], list[1]))
@@ -76,18 +81,16 @@ def output(list):
     print("degree: %s\n"%(list[14]))
 
 def angleplt(x, y):
-    import matplotlib.pyplot as plt
     plt.title("Angle per frame")
     plt.xlabel("frame_num")
     plt.ylabel("angle")
-    plt.xlim(0, 300)
+    plt.xlim(0, len(x))
     plt.ylim(0, 180)
     plt.grid(True)
     plt.plot(x, y)
     plt.show()
 
 def coordplt(x, y_1, y_2, plt_path):
-    import matplotlib.pyplot as plt
     frame_per_sec = 25
     frame_num = len(x)
     sec_list = []
@@ -110,10 +113,7 @@ def coordplt(x, y_1, y_2, plt_path):
     plt.close()
 
 
-def trandition(angle_info, output_list):
-    import pandas as pd
-    import csv
-
+def trandition(input_name, angle_info, output_list):
     header_list = ['nose_x', 'nose_y', \
                    'left_eye_x', 'left_eye_y', 'right_eye_x', 'right_eye_y',\
                    'left_ear_x', 'left_ear_y', 'right_ear_x', 'right_ear_y',\
@@ -124,7 +124,10 @@ def trandition(angle_info, output_list):
                    'left_knee_x', 'left_knee_y', 'right_knee_x', 'right_knee_y',\
                    'left_ankle_x', 'left_ankle_y', 'right_ankle_x', 'right_ankle_y']
     x: float = 0.0
-    with open('angle_sum_list.csv', 'a', newline='') as f:
+
+    save_path = input_name + '_plot.csv'
+
+    with open(save_path, 'w', newline='') as f:
         writer = csv.writer(f, lineterminator='\n')
         tmp_list = []
         for i in range(17):
