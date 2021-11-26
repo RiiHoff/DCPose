@@ -17,12 +17,11 @@ from utils.utils_video import video2images, image2video
 from utils.utils_image import read_image, save_image
 from utils.utils_json import write_json_to_file
 from engine.core.vis_helper import add_poseTrack_joint_connection_to_image, add_bbox_in_image
-
+from utils.utils_angle import *
 
 import math
 import numpy
 import csv
-import angle
 import matplotlib.pyplot as plt
 
 
@@ -129,10 +128,10 @@ def video():
             # y_c = person_info["keypoints"][13][1]
 
             frame_nlist.append(image_idx)
-            est_list, res_list = angle.hip_cul(x_a, y_a, x_b, y_b)
+            est_list, res_list = hip_cul(x_a, y_a, x_b, y_b)
             angle_list.append(round(est_list[14], 2))
 
-            # angle.trandition(person_info["keypoints"], angle_list)
+            # trandition(person_info["keypoints"], angle_list)
             
 
             # posetrack points
@@ -173,14 +172,15 @@ def video():
                 base_img_vis_save_dirs, video_name), video_name)
             print("------->Complete!")
 
-            # angle.angleplt(frame_nlist, angle_list)
-            angle.csvplt(video_name, res_list)
+            # angleplt(frame_nlist, angle_list)
+            csvplt(video_name, res_list)
+            angleplt(video_name, frame_nlist, angle_list)
             # for i in range(17):
             #     joint_num: int = i
             #     column_xlist = [r[joint_num * 2] for r in angle_list]
             #     column_ylist = [r[joint_num * 2 + 1] for r in angle_list]
             #     plt_path = './plt/' + str(joint_num).zfill(2) + '_' + joint_list[joint_num] + '.jpg'
-            #     angle.coordplt(frame_nlist, column_xlist, column_ylist, plt_path)
+            #     coordplt(frame_nlist, column_xlist, column_ylist, plt_path)
                 
 
 
