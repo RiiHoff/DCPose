@@ -4,7 +4,7 @@ import csv
 import matplotlib.pyplot as plt
 
 est_list = []
-sta_list = []
+csv_stack = []
 
 def inside_hip_cul(x_a, y_a, x_b, y_b, x_c, y_c):
 
@@ -43,14 +43,11 @@ def hip_cul(x_a, y_a, x_b, y_b):
         degree = 180 - degree
 
     est_list = [x_a, y_a, x_b, y_a, x_c, y_a, a_sq, b_sq, c_sq, a, b, c, cos, theta, degree]
-    
-    csv_stack(est_list)
+    print(est_list, type(est_list))
+    csv_stack.append(est_list)
+    print(csv_stack, type(csv_stack))
 
-    return est_list
-
-def csv_stack(est_list):
-    
-    sta_list.append(est_list)
+    return est_list, csv_stack
 
 
 def csvplt(input_name, est_list):
