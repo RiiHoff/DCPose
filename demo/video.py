@@ -18,6 +18,7 @@ from utils.utils_image import read_image, save_image
 from utils.utils_json import write_json_to_file
 from engine.core.vis_helper import add_poseTrack_joint_connection_to_image, add_bbox_in_image
 from utils.utils_angle import *
+from utils.utils_peek import *
 
 import math
 import numpy
@@ -175,6 +176,7 @@ def video():
             # angleplt(frame_nlist, angle_list)
             csvplt(video_name, res_list)
             angleplt(video_name, frame_nlist, angle_list)
+            angle_peek(video_name, angle_list)
             # for i in range(17):
             #     joint_num: int = i
             #     column_xlist = [r[joint_num * 2] for r in angle_list]
