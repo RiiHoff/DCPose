@@ -82,6 +82,9 @@ def video():
         video_name = osp.basename(images_dir)
         image_list = list_immediate_childfile_paths(images_dir, ext='jpg')
         video_candidates_list = []
+        angle_list = []
+        frame_nlist = []
+        angle_sum = []
         for image_path in tqdm(image_list):
             candidate_bbox = inference_yolov3(image_path)
             for bbox in candidate_bbox:
@@ -121,10 +124,10 @@ def video():
             keypoints = inference_PE(
                 image_path, prev_image_path, next_image_path, bbox)
             person_info["keypoints"] = keypoints.tolist()[0]
-            x_a = person_info["keypoints"][5][0]
-            y_a = person_info["keypoints"][5][1]
-            x_b = person_info["keypoints"][11][0]
-            y_b = person_info["keypoints"][11][1]
+            x_a = person_info["keypoints"][6][0]
+            y_a = person_info["keypoints"][6][1]
+            x_b = person_info["keypoints"][12][0]
+            y_b = person_info["keypoints"][12][1]
             # x_c = person_info["keypoints"][13][0]
             # y_c = person_info["keypoints"][13][1]
 
@@ -132,7 +135,7 @@ def video():
             est_list, res_list = hip_cul(x_a, y_a, x_b, y_b)
             angle_list.append(round(est_list[14], 2))
 
-            # trandition(person_info["keypoints"], angle_list)
+            # trandition(video_name, person_info["keypoints"], angle_list)
             
 
             # posetrack points
@@ -181,8 +184,8 @@ def video():
             #     joint_num: int = i
             #     column_xlist = [r[joint_num * 2] for r in angle_list]
             #     column_ylist = [r[joint_num * 2 + 1] for r in angle_list]
-            #     plt_path = './plt/' + str(joint_num).zfill(2) + '_' + joint_list[joint_num] + '.jpg'
-            #     coordplt(frame_nlist, column_xlist, column_ylist, plt_path)
+            #     plt_path = './graph/' + str(joint_num).zfill(2) + '_' + joint_list[joint_num] + '.jpg'
+            #     coordplt(plt_path, frame_nlist, column_xlist, column_ylist)
                 
 
 
