@@ -2,10 +2,15 @@ import csv
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
+import sys
+
+args = sys.argv
 
 est_deg = []
 rea_deg = []
 i = 0
+
+
 
 est_file = open("dcpose_drgree_list.csv", "r")
 rea_file = open("STS01.csv", "r")
