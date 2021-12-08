@@ -54,9 +54,6 @@ def video():
     SAVE_BOX_IMAGE = True
     base_img_vis_box_save_dirs = './output/vis_img_box'
     # 1.Split the video into images
-    angle_list = []
-    frame_nlist = []
-    angle_sum = []
 
     for video_path in tqdm(video_list):
         video_name = osp.basename(video_path)
