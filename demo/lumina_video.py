@@ -25,7 +25,7 @@ print(toff_path)
 for file in files:
     # file_name = os.path.splitext(os.path.basename(file))[0]
     # print(file_name)
-    lumina_ex(file, toff_path)
+    lumina(file, toff_path)
     print('saved ' + file)
 
 image2video(out_path, person_name)
