@@ -17,13 +17,14 @@ from utils.utils_video import video2images, image2video
 from utils.utils_image import read_image, save_image
 from utils.utils_json import write_json_to_file
 from engine.core.vis_helper import add_poseTrack_joint_connection_to_image, add_bbox_in_image
-from utils.utils_angle import *
-from utils.utils_peek import *
+from utils.utils_angle import hip_cul, csvplt, output, angleplt, coordplt, trandition
+from utils.utils_peek import angle_peek
+from utils.utils_lumina import lumina, lumina_ex
+from utils.utils_cog import cog_cul, cog_plt 
 
-import math
 import numpy
-import csv
 import matplotlib.pyplot as plt
+import cv2
 
 
 zero_fill = 8
@@ -53,6 +54,10 @@ def video():
     SAVE_VIS_IMAGE = True
     SAVE_BOX_IMAGE = True
     base_img_vis_box_save_dirs = './output/vis_img_box'
+    frame_nlist = []
+    angle_list = []
+    x_cog = []
+    y_cog = []
     # 1.Split the video into images
 
     for video_path in tqdm(video_list):
@@ -95,9 +100,8 @@ def video():
         video_candidates_list = video_info["candidates_list"]
         video_length = video_info["length"]
         prev_image_id = None
-        angle_list = []
-        frame_nlist = []
         for person_info in tqdm(video_candidates_list):
+            angle_list = []
             image_path = person_info["image_path"]
             xywh_box = person_info["bbox"]
             print(os.path.basename(image_path))
@@ -130,7 +134,9 @@ def video():
             frame_nlist.append(image_idx)
             est_list, res_list = hip_cul(x_a, y_a, x_b, y_b)
             angle_list.append(round(est_list[14], 2))
-
+            crr_cog = cog_cul(person_info["keypoints"])
+            x_cog.append(round(crr_cog[0], 2))
+            y_cog.append(round(crr_cog[1], 2))
             # trandition(video_name, person_info["keypoints"], angle_list)
             
 
@@ -146,6 +152,7 @@ def video():
                     current_image = read_image(image_path)
                 pose_img = add_poseTrack_joint_connection_to_image(
                     current_image, new_coord, sure_threshold=0.3, flag_only_draw_sure=True)
+                cv2.circle(pose_img, (int(round(crr_cog[0])), int(round(crr_cog[1]))), 7, (153, 0, 255), thickness=-1)
                 save_image(image_save_path, pose_img)
 
             if SAVE_BOX_IMAGE:
@@ -173,9 +180,16 @@ def video():
             print("------->Complete!")
 
             # angleplt(frame_nlist, angle_list)
+            # print('frame_nlist : ' + str(frame_nlist))
+            # print('len(frame_nlist) : ' + str(len(frame_nlist)))
+            # print('len(x_cog) :' + str(len(x_cog)))
+            # print('len(y_cog) :' + str(len(y_cog)))
+
             csvplt(video_name, res_list)
             angleplt(video_name, frame_nlist, angle_list)
             angle_peek(video_name, angle_list)
+            angleplt(video_name + 'x_cog', frame_nlist, x_cog)
+            angleplt(video_name + 'y_cog', frame_nlist, y_cog)
             # for i in range(17):
             #     joint_num: int = i
             #     column_xlist = [r[joint_num * 2] for r in angle_list]
