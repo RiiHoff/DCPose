@@ -17,7 +17,7 @@ from utils.utils_video import video2images, image2video
 from utils.utils_image import read_image, save_image
 from utils.utils_json import write_json_to_file
 from engine.core.vis_helper import add_poseTrack_joint_connection_to_image, add_bbox_in_image
-from utils.utils_angle import hip_cul, csvplt, output, angleplt, coordplt, trandition
+from utils.utils_angle import hip_cul, csvplt, output, angleplt, angleplt_smo, coordplt, trandition
 from utils.utils_peek import angle_peek
 from utils.utils_lumina import lumina, lumina_ex
 from utils.utils_cog import cog_cul, cog_plt 
@@ -100,8 +100,11 @@ def video():
         video_candidates_list = video_info["candidates_list"]
         video_length = video_info["length"]
         prev_image_id = None
+        frame_nlist = []
+        angle_list = []
+        x_cog = []
+        y_cog = []
         for person_info in tqdm(video_candidates_list):
-            angle_list = []
             image_path = person_info["image_path"]
             xywh_box = person_info["bbox"]
             print(os.path.basename(image_path))
@@ -179,23 +182,25 @@ def video():
                 base_img_vis_save_dirs, video_name), video_name)
             print("------->Complete!")
 
-            # angleplt(frame_nlist, angle_list)
-            # print('frame_nlist : ' + str(frame_nlist))
-            # print('len(frame_nlist) : ' + str(len(frame_nlist)))
-            # print('len(x_cog) :' + str(len(x_cog)))
-            # print('len(y_cog) :' + str(len(y_cog)))
+
+            print('frame_nlist : ' + str(frame_nlist))
+            print('len(frame_nlist) : ' + str(len(frame_nlist)))
+            print('len(angle_list) : ' + str(len(angle_list)))
+            print('len(x_cog) :' + str(len(x_cog)))
+            print('len(y_cog) :' + str(len(y_cog)))
 
             csvplt(video_name, res_list)
-            angleplt(video_name, frame_nlist, angle_list)
             angle_peek(video_name, angle_list)
-            angleplt(video_name + 'x_cog', frame_nlist, x_cog)
-            angleplt(video_name + 'y_cog', frame_nlist, y_cog)
+            angleplt_smo(video_name, frame_nlist, angle_list)
+            angleplt_smo(video_name + '_x_cog', frame_nlist, x_cog)
+            angleplt_smo(video_name + '_y_cog', frame_nlist, y_cog)
             # for i in range(17):
             #     joint_num: int = i
             #     column_xlist = [r[joint_num * 2] for r in angle_list]
             #     column_ylist = [r[joint_num * 2 + 1] for r in angle_list]
             #     plt_path = './graph/' + str(joint_num).zfill(2) + '_' + joint_list[joint_num] + '.jpg'
             #     coordplt(plt_path, frame_nlist, column_xlist, column_ylist)
+
                 
 
 
