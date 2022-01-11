@@ -183,7 +183,7 @@ def video():
             print("------->Complete!")
 
 
-            print('frame_nlist : ' + str(frame_nlist))
+            # print('frame_nlist : ' + str(frame_nlist))
             print('len(frame_nlist) : ' + str(len(frame_nlist)))
             print('len(angle_list) : ' + str(len(angle_list)))
             print('len(x_cog) :' + str(len(x_cog)))
@@ -192,8 +192,8 @@ def video():
             csvplt(video_name, res_list)
             angle_peek(video_name, angle_list)
             angleplt_smo(video_name, frame_nlist, angle_list)
-            angleplt_smo(video_name + '_x_cog', frame_nlist, x_cog)
-            angleplt_smo(video_name + '_y_cog', frame_nlist, y_cog)
+            # angleplt_smo(video_name + '_x_cog', frame_nlist, x_cog)
+            # angleplt_smo(video_name + '_y_cog', frame_nlist, y_cog)
             # for i in range(17):
             #     joint_num: int = i
             #     column_xlist = [r[joint_num * 2] for r in angle_list]

@@ -16,7 +16,7 @@ def angle_peek(file_name, angle_list):
                 'data': [ang_max, ang_min, ind_max, ind_min, ang_dif, ind_dif]
                }
 
-    save_path = "./peek/peek_" + file_name + ".csv"
+    save_path = "./peek/" + file_name + "_peek.csv"
 
     df = pd.DataFrame(cul_data)
     df.to_csv(save_path)

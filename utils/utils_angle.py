@@ -6,6 +6,11 @@ import matplotlib.pyplot as plt
 est_list = []
 csv_stack = []
 
+def smoothing(y_list):
+    window = 5
+    w = np.ones(window) / window  # 移動平均を取るための準備
+    smo_y = np.convolve(y_list, w, mode="same")
+    return smo_y
 
 def inside_hip_cul(x_a, y_a, x_b, y_b, x_c, y_c):
 
@@ -79,13 +84,26 @@ def output(list):
 
 def angleplt(input_name, x, y):
     save_path = './graph/' + input_name + '_graph.png'
+    plt.figure()
     plt.title("Angle per frame")
     plt.xlabel("frame_num")
     plt.ylabel("angle")
-    plt.xlim(0, len(x)+10)
+    plt.xlim(0, len(x))
     plt.ylim(0, 180)
     plt.grid(True)
     plt.plot(x, y)
+    plt.savefig(save_path)
+
+def angleplt_smo(input_name, x, y):
+    save_path = './graph/' + input_name + '_graph.png'
+    plt.figure()
+    plt.title("Angle per frame")
+    plt.xlabel("frame_num")
+    plt.ylabel("angle")
+    plt.xlim(0, len(x))
+    plt.ylim(0, 180)
+    plt.grid(True)
+    plt.plot(x, smoothing(y))
     plt.savefig(save_path)
 
 def coordplt(x, y_1, y_2, plt_path):

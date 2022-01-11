@@ -8,8 +8,10 @@ x: int = 0
 x_axis = []
 y_axis = []
 
+
+
 data_path = './csv/' + args[1] + '.csv'
-save_path = './graph/graph_' + args[1] + '.png'
+save_path = './plt/' + args[1] + '_plt.png'
 
 with open(data_path, 'r', newline='') as f:
     reader = csv.reader(f)
