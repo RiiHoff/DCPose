@@ -1,7 +1,2 @@
-,header,data
-0,ang_max,127.16
-1,ang_min,87.17
-2,ind_max,63.0
-3,ind_min,319.0
-4,ang_dif,39.989999999999995
-5,ind_dif,256.0
+ang_max,ang_min,ind_max,ind_min,sec_max,sec_min,ang_dif,ind_dif,sec_dif
+127.16,56.91,63,291,1.05,4.85,70.25,228,3.8
