@@ -29,6 +29,8 @@ def video2images(video_path, outimages_path=None, zero_fill=8):
         if flag:
 
             cv2.imwrite(file_path, data, [cv2.IMWRITE_JPEG_QUALITY, 100])
+    
+    return fps
 
 
 def image2video(image_dir, name, fps=25):

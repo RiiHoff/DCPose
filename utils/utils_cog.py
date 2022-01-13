@@ -1,10 +1,14 @@
 import cv2
+import os
+import os.path as osp
+import sys
+sys.path.insert(0, osp.abspath('../'))
+from utils.utils_calculation import rounding, round_dp2
 
 def comp(l, r):
     a = l if r > l else r
     b = l if l > r else r
     return a, b
-
 def cog_cul(keypoint_coords):
     #重心計算のパラメータ (横井,1993,バイオメカニズム学会誌)
     P_HEAD = 0.069

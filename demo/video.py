@@ -17,14 +17,16 @@ from utils.utils_video import video2images, image2video
 from utils.utils_image import read_image, save_image
 from utils.utils_json import write_json_to_file
 from engine.core.vis_helper import add_poseTrack_joint_connection_to_image, add_bbox_in_image
-from utils.utils_angle import hip_cul, csvplt, output, angleplt, angleplt_smo, coordplt, trandition
+from utils.utils_angle import hip_cul, csvplt, csv_angleplt, csv_cogplt, output, angleplt, angleplt_smo, angleplt_cog, coordplt, stack_coords, trandition
 from utils.utils_peek import angle_peek
 from utils.utils_lumina import lumina, lumina_ex
 from utils.utils_cog import cog_cul, cog_plt 
+from utils.utils_calculation import rounding, round_dp2
 
-import numpy
+import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+
 
 
 zero_fill = 8
@@ -73,7 +75,7 @@ def video():
         create_folder(image_vis_save_path)
         create_folder(image_vis_box_save_path)
 
-        video2images(video_path, image_save_path)  # jpg
+        fps = video2images(video_path, image_save_path)  # jpg
 
     # 2. Person Instance detection
     logger.info("Person Instance detection in progress ...")
@@ -96,7 +98,7 @@ def video():
     logger.info("Person Instance detection finish")
     # 3. Singe Person Pose Estimation
     logger.info("Single person pose estimation in progress ...")
-    for video_name, video_info in video_candidates.items():
+    for video_name, video_info in video_candidates.items(): # 各画像ごとのループ
         video_candidates_list = video_info["candidates_list"]
         video_length = video_info["length"]
         prev_image_id = None
@@ -104,6 +106,7 @@ def video():
         angle_list = []
         x_cog = []
         y_cog = []
+        angle_sum_list = []
         for person_info in tqdm(video_candidates_list):
             image_path = person_info["image_path"]
             xywh_box = person_info["bbox"]
@@ -136,12 +139,11 @@ def video():
 
             frame_nlist.append(image_idx)
             est_list, res_list = hip_cul(x_a, y_a, x_b, y_b)
-            angle_list.append(round(est_list[14], 2))
+            angle_list.append(float(round(est_list[14], 2)))
             crr_cog = cog_cul(person_info["keypoints"])
-            x_cog.append(round(crr_cog[0], 2))
-            y_cog.append(round(crr_cog[1], 2))
-            # trandition(video_name, person_info["keypoints"], angle_list)
-            
+            x_cog.append(float(round(crr_cog[0], 2)))
+            y_cog.append(float(round(crr_cog[1], 2)))
+            stack_coords(angle_sum_list, person_info["keypoints"])
 
             # posetrack points
             new_coord = coco2posetrack_ord_infer(keypoints[0])
@@ -184,22 +186,26 @@ def video():
 
 
             # print('frame_nlist : ' + str(frame_nlist))
-            print('len(frame_nlist) : ' + str(len(frame_nlist)))
-            print('len(angle_list) : ' + str(len(angle_list)))
-            print('len(x_cog) :' + str(len(x_cog)))
-            print('len(y_cog) :' + str(len(y_cog)))
+            # print('len(frame_nlist) : ' + str(len(frame_nlist)))
+            # print('len(angle_list) : ' + str(len(angle_list)))
+            # print('len(x_cog) :' + str(len(x_cog)))
+            # print('len(y_cog) :' + str(len(y_cog)))
 
-            csvplt(video_name, res_list)
-            angle_peek(video_name, angle_list)
-            angleplt_smo(video_name, frame_nlist, angle_list)
-            # angleplt_smo(video_name + '_x_cog', frame_nlist, x_cog)
-            # angleplt_smo(video_name + '_y_cog', frame_nlist, y_cog)
+            cog_coords = np.array([x_cog, y_cog])
+            angleplt_smo(video_name, frame_nlist, angle_list, fps) # 角度推移のグラフ
+            csv_angleplt(video_name, res_list) # 角度算出で使用した数値の出力
+            csv_cogplt(video_name, cog_coords.transpose())
+            trandition(video_name, angle_sum_list) # 座標のデータ出力
+            angle_peek(video_name, angle_list, fps) # 最大角度，最小角度の値とそのフレーム数
+            # angleplt_cog(video_name + '_cog', frame_nlist, x_cog, y_cog, fps) # 重心推移のグラフ
+
+            # 各関節のグラフ出力
             # for i in range(17):
             #     joint_num: int = i
-            #     column_xlist = [r[joint_num * 2] for r in angle_list]
-            #     column_ylist = [r[joint_num * 2 + 1] for r in angle_list]
+            #     column_xlist = [r[joint_num * 2] for r in angle_sum_list]
+            #     column_ylist = [r[joint_num * 2 + 1] for r in angle_sum_list]
             #     plt_path = './graph/' + str(joint_num).zfill(2) + '_' + joint_list[joint_num] + '.jpg'
-            #     coordplt(plt_path, frame_nlist, column_xlist, column_ylist)
+            #     coordplt(frame_nlist, column_xlist, column_ylist, plt_path, fps)
 
                 
 
