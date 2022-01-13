@@ -9,7 +9,7 @@ from utils.utils_calculation import rounding, round_dp2
 
 
 def angle_peek(file_name, angle_list, fps):
-    save_path = "./peek/" + file_name + "_peek.csv"
+    save_path = "./results_trunk_peek/" + file_name + "_peek.csv"
 
     ang_max = np.nanmax(angle_list)
     ang_min = np.nanmin(angle_list)

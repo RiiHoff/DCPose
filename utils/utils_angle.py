@@ -1,4 +1,6 @@
+from math import nan
 import numpy as np
+from numpy.core.numeric import NaN
 import pandas as pd
 import csv
 import matplotlib.pyplot as plt
@@ -37,12 +39,13 @@ def inside_hip_cul(x_a, y_a, x_b, y_b, x_c, y_c):
 
     return est_list
 
-
 def hip_cul(x_a, y_a, x_b, y_b):
 
     x_c = x_a 
     y_c = y_b
     a = np.abs(x_a - x_b)
+    # if a == 0:
+    #     a = sys.float_info.epsilon
     a_sq = a**2
     b = np.abs(y_b - y_a)
     b_sq = b**2
@@ -61,20 +64,25 @@ def hip_cul(x_a, y_a, x_b, y_b):
     return est_list, csv_stack
 
 
-def csvplt(input_name, est_list):
-
-
-    est_header = ['sho_x(coord)', 'sho_y(coord)', 'hip_x(coord)', 'hip_y(coord)', 'c_x(coord)', 'c_y(coord)', \
-                  'a_sq(dis)', 'b_sq(dis)', 'c_sq(dis)', 'a(dis)', 'b(dis)', 'c(dis)',  \
-                  'cos(rad))', 'theta(theta)', 'degree(deg)']
-
-    save_path = './csv/' + input_name + '_plot.csv'
+def csvplt(save_path, header, est_list):
 
     with open(save_path, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(est_header)
+        writer.writerow(header)
         writer.writerows(est_list)
 
+
+def csv_angleplt(input_name, est_list):
+    save_path = './results_trunk_csv/' + input_name + '_plot.csv'
+    trunk_header = ['sho_x(coord)', 'sho_y(coord)', 'hip_x(coord)', 'hip_y(coord)', 'c_x(coord)', 'c_y(coord)', \
+                  'a_sq(dis)', 'b_sq(dis)', 'c_sq(dis)', 'a(dis)', 'b(dis)', 'c(dis)',  \
+                  'cos(rad))', 'theta(theta)', 'degree(deg)']
+    csvplt(save_path, trunk_header, est_list)
+
+def csv_cogplt(input_name, est_list):
+    save_path = './results_cog_csv/' + input_name + '_plot.csv'
+    cog_header = ['x_cog', 'y_cog']
+    csvplt(save_path, cog_header, est_list)
 
 
 def output(list):
@@ -90,14 +98,14 @@ def output(list):
 
 def angleplt(input_name, x, y, fps):
     x_sec = []
-    save_path = './graph/' + input_name + '_graph.png'
+    save_path = './results_trunk_graph/' + input_name + '_graph.png'
     plt_title = "Angle Transiton (" + input_name + ')'
     
     for a in range(len(x)):
         sec = a / fps
         x_sec.append(round(float(sec), 2))
 
-    plt.figure()
+    # plt.figure()
     plt.title(plt_title)
     plt.xlabel("second(s)")
     plt.ylabel("angle(deg)")
@@ -106,37 +114,33 @@ def angleplt(input_name, x, y, fps):
     plt.grid(True)
     plt.plot(x_sec, y)
     plt.savefig(save_path)
+    plt.clf()
     plt.close()
 
 def angleplt_smo(input_name, x, y, fps):
+    dif = 25
     for i in range(len(x)):
         n = y[i]
         if np.isnan(n):
-            print(n)
-            b, a = y[i-5:i-1], y[i+1:i+5]
-            b_ave, a_ave = np.nanmean(np.nan_to_num(b)), np.nanmean(np.nan_to_num(a))
+            b, a = y[i-dif:i-1], y[i+1:i+dif]
+            b_ave = np.nansum(np.nan_to_num(b)) / (dif - np.count_nonzero(np.isnan(b)))
+            a_ave = np.nansum(np.nan_to_num(a)) / (dif - np.count_nonzero(np.isnan(a)))
             if b_ave == 0:
                 tmp = float(a_ave)
             elif a_ave == 0:
                 tmp = float(b_ave)
             else:
                 tmp = float((b_ave + a_ave) / 2)
-            print(b)
-            print(a)
-            print(b_ave)
-            print(a_ave)
-            print(tmp)
             y[i] = round(tmp, 2)
         i = i + 1
-
     angleplt(input_name, x, smoothing(y), fps)
 
 
-def angleplt_two(input_name, x, y1, y2, fps):
+def angleplt_cog(input_name, x, y1, y2, fps):
     x_sec = []
     c1,c2 = "cyan","orange"     # 各プロットの色
     l1,l2 = "x_cog","y_cog" 
-    save_path = './graph/' + input_name + '_graph.png'
+    save_path = './results_cog_graph/' + input_name + '_graph.png'
     plt_title = "Center of Gravity(COG) (" + input_name + ")"
 
     
@@ -144,17 +148,18 @@ def angleplt_two(input_name, x, y1, y2, fps):
         sec = a / fps
         x_sec.append(round(float(sec), 2))
 
-    fig, ax = plt.subplots()
-    plt.figure()
-    ax.set_title(plt_title)
-    ax.set_xlabel("second(s)")
-    ax.set_ylabel("angle(deg)")
+    # fig, ax = plt.subplots()
+    # plt.figure()
+    plt.title(plt_title)
+    plt.xlabel("second(s)")
+    plt.ylabel("angle(deg)")
     plt.xlim(0, np.max(x_sec))
     plt.ylim(0, 180)
-    ax.grid(True)
-    ax.plot(x_sec, y1, color=c1, label=l1)
-    ax.plot(x_sec, y2, color=c2, label=l2)
+    plt.grid(True)
+    plt.plot(x_sec, y1, color=c1, label=l1)
+    plt.plot(x_sec, y2, color=c2, label=l2)
     plt.savefig(save_path)
+    plt.clf()
     plt.close()
 
 
@@ -201,6 +206,6 @@ def trandition(input_name, output_list):
                    'left_ankle_x', 'left_ankle_y', 'right_ankle_x', 'right_ankle_y']
     x: float = 0.0
 
-    save_path = input_name + '_plot.csv'
+    save_path = './results_transition/' + input_name + '_trans.csv'
     df = pd.DataFrame(output_list, columns=header_list)
     df.to_csv(save_path)
