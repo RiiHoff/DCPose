@@ -2,6 +2,7 @@
 # -*- coding:utf8 -*-
 import os
 import os.path as osp
+from pickle import FALSE
 import sys
 
 sys.path.insert(0, osp.abspath('../'))
@@ -51,10 +52,10 @@ def video():
     video_list = list_immediate_childfile_paths(
         base_video_path, ext=['mp3', 'mp4'])
     input_image_save_dirs = []
-    SAVE_JSON = True
+    SAVE_JSON = False
     SAVE_VIS_VIDEO = True
-    SAVE_VIS_IMAGE = True
-    SAVE_BOX_IMAGE = True
+    SAVE_VIS_IMAGE = False
+    SAVE_BOX_IMAGE = False
     base_img_vis_box_save_dirs = './output/vis_img_box'
     frame_nlist = []
     angle_list = []
