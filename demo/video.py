@@ -185,12 +185,6 @@ def video():
             print("------->Complete!")
 
 
-            # print('frame_nlist : ' + str(frame_nlist))
-            # print('len(frame_nlist) : ' + str(len(frame_nlist)))
-            # print('len(angle_list) : ' + str(len(angle_list)))
-            # print('len(x_cog) :' + str(len(x_cog)))
-            # print('len(y_cog) :' + str(len(y_cog)))
-
             cog_coords = np.array([x_cog, y_cog])
             angleplt_smo(video_name, frame_nlist, angle_list, fps) # 角度推移のグラフ
             csv_angleplt(video_name, res_list) # 角度算出で使用した数値の出力
