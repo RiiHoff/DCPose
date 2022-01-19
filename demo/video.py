@@ -25,7 +25,6 @@ from utils.utils_cog import cog_cul, cog_plt
 from utils.utils_calculation import rounding, round_dp2
 
 import numpy as np
-import matplotlib.pyplot as plt
 import cv2
 
 
