@@ -51,15 +51,17 @@ def video():
     video_list = list_immediate_childfile_paths(
         base_video_path, ext=['mp3', 'mp4'])
     input_image_save_dirs = []
-    SAVE_JSON = False
+    SAVE_JSON = True
     SAVE_VIS_VIDEO = True
-    SAVE_VIS_IMAGE = False
-    SAVE_BOX_IMAGE = False
+    SAVE_VIS_IMAGE = True
+    SAVE_BOX_IMAGE = True
     base_img_vis_box_save_dirs = './output/vis_img_box'
     frame_nlist = []
     angle_list = []
     x_cog = []
     y_cog = []
+    res_list = []
+    
     # 1.Split the video into images
 
     for video_path in tqdm(video_list):
@@ -107,6 +109,7 @@ def video():
         x_cog = []
         y_cog = []
         angle_sum_list = []
+        res_list = []
         for person_info in tqdm(video_candidates_list):
             image_path = person_info["image_path"]
             xywh_box = person_info["bbox"]
@@ -138,7 +141,8 @@ def video():
             # y_c = person_info["keypoints"][13][1]
 
             frame_nlist.append(image_idx)
-            est_list, res_list = hip_cul(x_a, y_a, x_b, y_b)
+            est_list = hip_cul(x_a, y_a, x_b, y_b)
+            res_list.append(est_list)
             angle_list.append(float(round(est_list[14], 2)))
             crr_cog = cog_cul(person_info["keypoints"])
             x_cog.append(float(round(crr_cog[0], 2)))
