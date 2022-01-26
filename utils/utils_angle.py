@@ -58,11 +58,9 @@ def hip_cul(x_a, y_a, x_b, y_b):
         degree = 180 - degree
 
     est_list = [x_a, y_a, x_b, y_a, x_c, y_a, a_sq, b_sq, c_sq, a, b, c, cos, theta, degree]
-    csv_stack.append(est_list)
+    # csv_stack.append(est_list)
     
-
-    return est_list, csv_stack
-
+    return est_list
 
 def csvplt(save_path, header, est_list):
 

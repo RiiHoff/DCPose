@@ -6,3 +6,9 @@
 /demo/diff_data/
 /demo/diff_data_ex/
 /demo/data/
+/demo/results_cog_csv/
+/demo/results_cog_graph/
+/demo/results_transition/
+/demo/results_trunk_csv/
+/demo/results_trunk_graph/
+/demo/results_trunk_peek/
