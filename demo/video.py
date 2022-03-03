@@ -26,6 +26,7 @@ from utils.utils_calculation import rounding, round_dp2
 
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
 
 
 
@@ -57,11 +58,18 @@ def video():
     SAVE_BOX_IMAGE = True
     base_img_vis_box_save_dirs = './output/vis_img_box'
     frame_nlist = []
-    angle_list = []
+    hip_angle_list = []
     x_cog = []
     y_cog = []
-    res_list = []
-    
+    nec_res_list = []
+    tru_res_list = []
+    kne_res_list = []
+    ank_res_list = []
+    nec_angle_list = []
+    tru_angle_list = []
+    kne_angle_list = []
+    ank_angle_list = []
+
     # 1.Split the video into images
 
     for video_path in tqdm(video_list):
@@ -105,11 +113,17 @@ def video():
         video_length = video_info["length"]
         prev_image_id = None
         frame_nlist = []
-        angle_list = []
         x_cog = []
         y_cog = []
         angle_sum_list = []
-        res_list = []
+        tru_res_list = []
+        nec_res_list = []
+        kne_res_list = []
+        ank_res_list = []
+        nec_angle_list = []
+        tru_angle_list = []
+        kne_angle_list = []
+        ank_angle_list = []
         for person_info in tqdm(video_candidates_list):
             image_path = person_info["image_path"]
             xywh_box = person_info["bbox"]
@@ -133,20 +147,43 @@ def video():
             keypoints = inference_PE(
                 image_path, prev_image_path, next_image_path, bbox)
             person_info["keypoints"] = keypoints.tolist()[0]
-            x_a = person_info["keypoints"][5][0]
-            y_a = person_info["keypoints"][5][1]
-            x_b = person_info["keypoints"][11][0]
-            y_b = person_info["keypoints"][11][1]
-            # x_c = person_info["keypoints"][13][0]
-            # y_c = person_info["keypoints"][13][1]
+            x_n = person_info["keypoints"][0][0]
+            y_n = person_info["keypoints"][0][1]
+            x_s = person_info["keypoints"][5][0]
+            y_s = person_info["keypoints"][5][1]
+            x_h = person_info["keypoints"][11][0]
+            y_h = person_info["keypoints"][11][1]
+            x_k = person_info["keypoints"][13][0]
+            y_k = person_info["keypoints"][13][1]
+            x_a = person_info["keypoints"][15][0]
+            y_a = person_info["keypoints"][15][1]
+            
 
             frame_nlist.append(image_idx)
-            est_list = hip_cul(x_a, y_a, x_b, y_b)
-            res_list.append(est_list)
-            angle_list.append(float(round(est_list[14], 2)))
+            # 頸部角度推移
+            nec_est_list = hip_cul(x_n, y_n, x_s, y_s)
+            nec_res_list.append(nec_est_list)
+            nec_angle_list.append(float(round(nec_est_list[14], 2)))
+            # 臀部角度推移
+            tru_est_list = hip_cul(x_s, y_s, x_h, y_h)
+            tru_res_list.append(tru_est_list)
+            tru_angle_list.append(float(round(tru_est_list[14], 2)))
+            # 膝部角度推移
+            kne_est_list = hip_cul(x_h, y_h, x_k, y_k)
+            kne_res_list.append(kne_est_list)
+            kne_angle_list.append(float(round(kne_est_list[14], 2)))
+            # 足部角度推移
+            ank_est_list = hip_cul(x_k, y_k, x_a, y_a)
+            ank_res_list.append(ank_est_list)
+            ank_angle_list.append(float(round(ank_est_list[14], 2)))
+
+            # 重心推移
+
             crr_cog = cog_cul(person_info["keypoints"])
             x_cog.append(float(round(crr_cog[0], 2)))
             y_cog.append(float(round(crr_cog[1], 2)))
+
+            # 全座標出力
             stack_coords(angle_sum_list, person_info["keypoints"])
 
             # posetrack points
@@ -190,20 +227,24 @@ def video():
 
 
             cog_coords = np.array([x_cog, y_cog])
-            angleplt_smo(video_name, frame_nlist, angle_list, fps) # 角度推移のグラフ
-            csv_angleplt(video_name, res_list) # 角度算出で使用した数値の出力
+            csv_angleplt(video_name, nec_res_list, 'nec') # 頸部角度出力
+            csv_angleplt(video_name, tru_res_list, 'hip') # 臀部角度出力
+            csv_angleplt(video_name, kne_res_list, 'kne') # 膝部角度出力
+            csv_angleplt(video_name, ank_res_list, 'ank') # 足部角度出力
             csv_cogplt(video_name, cog_coords.transpose())
             trandition(video_name, angle_sum_list) # 座標のデータ出力
-            angle_peek(video_name, angle_list, fps) # 最大角度，最小角度の値とそのフレーム数
+            # angle_peek(video_name, angle_list, fps) # 最大角度，最小角度の値とそのフレーム数
+            angleplt_smo(video_name, frame_nlist, nec_angle_list, fps, 'neck') # 角度推移のグラフ
+            plt.pause(2)
+            angleplt_smo(video_name, frame_nlist, tru_angle_list, fps, 'trunk') # 角度推移のグラフ
+            plt.pause(2)
+            angleplt_smo(video_name, frame_nlist, kne_angle_list, fps, 'knee') # 角度推移のグラフ
+            plt.pause(2)
+            angleplt_smo(video_name, frame_nlist, ank_angle_list, fps, 'ankle') # 角度推移のグラフ
+            plt.pause(2)
             # angleplt_cog(video_name + '_cog', frame_nlist, x_cog, y_cog, fps) # 重心推移のグラフ
 
-            # 各関節のグラフ出力
-            # for i in range(17):
-            #     joint_num: int = i
-            #     column_xlist = [r[joint_num * 2] for r in angle_sum_list]
-            #     column_ylist = [r[joint_num * 2 + 1] for r in angle_sum_list]
-            #     plt_path = './graph/' + str(joint_num).zfill(2) + '_' + joint_list[joint_num] + '.jpg'
-            #     coordplt(frame_nlist, column_xlist, column_ylist, plt_path, fps)
+
 
                 
 
