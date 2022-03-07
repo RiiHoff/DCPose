@@ -70,8 +70,8 @@ def csvplt(save_path, header, est_list):
         writer.writerows(est_list)
 
 
-def csv_angleplt(input_name, est_list):
-    save_path = './results_trunk_csv/' + input_name + '_plot.csv'
+def csv_angleplt(input_name, est_list, region):
+    save_path = './results_' + region + '_csv/' + input_name + '_plot.csv'
     trunk_header = ['sho_x(coord)', 'sho_y(coord)', 'hip_x(coord)', 'hip_y(coord)', 'c_x(coord)', 'c_y(coord)', \
                   'a_sq(dis)', 'b_sq(dis)', 'c_sq(dis)', 'a(dis)', 'b(dis)', 'c(dis)',  \
                   'cos(rad))', 'theta(theta)', 'degree(deg)']
@@ -94,9 +94,9 @@ def output(list):
     print("theta: %s\n"%(list[13]))
     print("degree: %s\n"%(list[14]))
 
-def angleplt(input_name, x, y, fps):
+def angleplt(input_name, x, y, fps, region):
     x_sec = []
-    save_path = './results_trunk_graph/' + input_name + '_graph.png'
+    save_path = './results_' + region + '_graph/' + input_name + '_graph.png'
     plt_title = "Angle Transiton (" + input_name + ')'
     
     for a in range(len(x)):
@@ -115,7 +115,7 @@ def angleplt(input_name, x, y, fps):
     plt.clf()
     plt.close()
 
-def angleplt_smo(input_name, x, y, fps):
+def angleplt_smo(input_name, x, y, fps, region):
     dif = 25
     for i in range(len(x)):
         n = y[i]
@@ -131,7 +131,7 @@ def angleplt_smo(input_name, x, y, fps):
                 tmp = float((b_ave + a_ave) / 2)
             y[i] = round(tmp, 2)
         i = i + 1
-    angleplt(input_name, x, smoothing(y), fps)
+    angleplt(input_name, x, smoothing(y), fps, region)
 
 
 def angleplt_cog(input_name, x, y1, y2, fps):
@@ -152,7 +152,7 @@ def angleplt_cog(input_name, x, y1, y2, fps):
     plt.xlabel("second(s)")
     plt.ylabel("angle(deg)")
     plt.xlim(0, np.max(x_sec))
-    plt.ylim(0, 180)
+    plt.ylim(0, 1920)
     plt.grid(True)
     plt.plot(x_sec, y1, color=c1, label=l1)
     plt.plot(x_sec, y2, color=c2, label=l2)
