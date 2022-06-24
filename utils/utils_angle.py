@@ -1,5 +1,4 @@
 from math import nan
-from pickle import FALSE
 import numpy as np
 from numpy.core.numeric import NaN
 import pandas as pd
@@ -11,9 +10,13 @@ import os.path as osp
 import sys
 sys.path.insert(0, osp.abspath('../'))
 from utils.utils_calculation import rounding, round_dp2
+from .utils_folder import create_folder, folder_exists, list_immediate_childfile_paths
 
 est_list = []
 csv_stack = []
+
+if not folder_exists('./results/'):
+    create_folder('./results/')
 
 def smoothing(y_list):
     window = 5
@@ -71,15 +74,23 @@ def csvplt(save_path, header, est_list):
         writer.writerows(est_list)
 
 
-def csv_angleplt(input_name, est_list, region):
-    save_path = './results_' + region + '_csv/' + input_name + '_plot.csv'
+def csv_angleplt(input_name, est_list, reg_num, region):
+    save_folder =  './results/' + input_name + '/' + reg_num + '_' + region + '/'
+    save_file = input_name + '_' + reg_num + region + '.csv'
+    save_path = save_folder + save_file 
+    if not folder_exists(save_folder): create_folder(save_folder)
+
     trunk_header = ['sho_x(coord)', 'sho_y(coord)', 'hip_x(coord)', 'hip_y(coord)', 'c_x(coord)', 'c_y(coord)', \
                   'a_sq(dis)', 'b_sq(dis)', 'c_sq(dis)', 'a(dis)', 'b(dis)', 'c(dis)',  \
                   'cos(rad))', 'theta(theta)', 'degree(deg)']
     csvplt(save_path, trunk_header, est_list)
 
 def csv_cogplt(input_name, est_list):
-    save_path = './results_cog_csv/' + input_name + '_plot.csv'
+    save_folder =  './results/' + input_name + '/05_cog/' + input_name + '_cog.csv'
+    save_file = input_name + '_cog.csv'
+    save_path = save_folder + save_file 
+    if not folder_exists(save_folder): create_folder(save_folder)
+
     cog_header = ['x_cog', 'y_cog']
     csvplt(save_path, cog_header, est_list)
 
@@ -95,9 +106,13 @@ def output(list):
     print("theta: %s\n"%(list[13]))
     print("degree: %s\n"%(list[14]))
 
-def angleplt(input_name, x, y, fps, region):
+def angleplt(input_name, x, y, fps, reg_num, region):
     x_sec = []
-    save_path = './results_' + region + '_graph/' + input_name + '_graph.png'
+    save_folder =  './results/' + input_name + '/' + reg_num + '_' + region + '/'
+    save_file = input_name + '_' + reg_num + region + '.png'
+    save_path = save_folder + save_file 
+    if not folder_exists(save_folder): create_folder(save_folder)
+    
     plt_title = "Angle Transiton (" + input_name + ')'
     
     for a in range(len(x)):
@@ -116,7 +131,7 @@ def angleplt(input_name, x, y, fps, region):
     plt.clf()
     plt.close()
 
-def angleplt_smo(input_name, x, y, fps, region):
+def angleplt_smo(input_name, x, y, fps, reg_num, region):
     dif = 25
     for i in range(len(x)):
         n = y[i]
@@ -132,14 +147,19 @@ def angleplt_smo(input_name, x, y, fps, region):
                 tmp = float((b_ave + a_ave) / 2)
             y[i] = round(tmp, 2)
         i = i + 1
-    angleplt(input_name, x, smoothing(y), fps, region)
+    angleplt(input_name, x, smoothing(y), fps, reg_num, region)
 
 
 def angleplt_cog(input_name, x, y1, y2, fps):
     x_sec = []
     c1,c2 = "cyan","orange"     # 各プロットの色
     l1,l2 = "x_cog","y_cog" 
-    save_path = './results_cog_graph/' + input_name + '_graph.png'
+    save_folder =  './results/' + input_name + '/05_cog/' + input_name + '_cog.csv'
+    save_file = input_name + '_cog.png'
+    save_path = save_folder + save_file 
+    if not folder_exists(save_folder): create_folder(save_folder)
+
+
     plt_title = "Center of Gravity(COG) (" + input_name + ")"
 
     
@@ -193,10 +213,8 @@ def stack_coords(stack_list, angle_info):
         i = i + 1
     stack_list.append(tmp_list)
 
-def trandition(input_name, output_list, fps):
-    x_sec = []
-    tmp = []
-    header_list = ['seconds', 'nose_x', 'nose_y', \
+def trandition(input_name, output_list):
+    header_list = ['nose_x', 'nose_y', \
                    'left_eye_x', 'left_eye_y', 'right_eye_x', 'right_eye_y',\
                    'left_ear_x', 'left_ear_y', 'right_ear_x', 'right_ear_y',\
                    'left_shoulder_x', 'left_shoulder_y', 'right_shoulder_x', 'right_shoulder_y',\
@@ -205,27 +223,13 @@ def trandition(input_name, output_list, fps):
                    'left_hip_x', 'left_hip_y', 'right_hip_x', 'right_hip_y',\
                    'left_knee_x', 'left_knee_y', 'right_knee_x', 'right_knee_y',\
                    'left_ankle_x', 'left_ankle_y', 'right_ankle_x', 'right_ankle_y']
-    save_path = './results_transition/' + input_name + '_trans.csv'
-
-    ran = len(output_list[0:])
-    s_list = mksec(ran, fps)
-    print(np.array(s_list).T)
-    print(output_list)
-
-    for i in range(ran):
-        tmp_s = s_list[i]
-        tmp_o = output_list[i]
-        tmp_a = tmp_s + tmp_o
-        tmp.append(tmp_a)
-
-    df = pd.DataFrame(tmp, columns=header_list, index=None)
-    df.to_csv(save_path)
-
-
-def mksec(lrange, fps):
-    x_sec=[]
     x: float = 0.0
-    for a in range(lrange):
-        sec = a / fps
-        x_sec.append([round(float(sec), 2)])
-    return x_sec
+
+
+    save_folder =  './results/' + input_name + '/99_transition/'
+    save_file = input_name + '_trans.csv'
+    save_path = save_folder + save_file 
+    if not folder_exists(save_folder): create_folder(save_folder)
+
+    df = pd.DataFrame(output_list, columns=header_list)
+    df.to_csv(save_path)

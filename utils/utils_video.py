@@ -5,6 +5,7 @@ import numpy as np
 from .utils_folder import create_folder, folder_exists, list_immediate_childfile_paths
 import os.path as osp
 
+output_folder = 'results'
 
 def video2images(video_path, outimages_path=None, zero_fill=8):
     cap = cv2.VideoCapture(video_path)
@@ -24,12 +25,12 @@ def video2images(video_path, outimages_path=None, zero_fill=8):
         if outimages_path is not None:
             file_path = osp.join(outimages_path, file_name)
         else:
-            create_folder("output")
-            file_path = osp.join("output", file_name)
+            create_folder(output_folder)
+            file_path = osp.join(output_folder, file_name)
         if flag:
 
             cv2.imwrite(file_path, data, [cv2.IMWRITE_JPEG_QUALITY, 100])
-    
+    print(fps)
     return fps
 
 
@@ -41,7 +42,10 @@ def image2video(image_dir, name, fps=25):
     temp = cv2.imread(image_path_list[0])
     size = (temp.shape[1], temp.shape[0])
     fourcc = cv2.VideoWriter_fourcc('D', 'I', 'V', 'X')
-    video = cv2.VideoWriter('./output/' + name + '.mp4', fourcc, fps, size)
+    print()
+    if not folder_exists('./' + output_folder + '/' + name + '/00_video/'): 
+        create_folder('./' + output_folder + '/' + name + '/00_video/')
+    video = cv2.VideoWriter('./' + output_folder + '/' + name + '/00_video/' + name + '.mp4', fourcc, fps, size)
     for image_path in image_path_list:
         if image_path.endswith(".jpg"):
             image_data_temp = cv2.imread(image_path)
