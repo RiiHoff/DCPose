@@ -1,15 +1,11 @@
 /demo/input/
 /demo/output/
+/demo/kekka/
+/demo/results/
 /demo/stsdata/
 .idea
 /DcPose_supp_files/
 /demo/diff_data/
 /demo/diff_data_ex/
 /demo/data/
-/demo/results_cog_csv/
-/demo/results_cog_graph/
-/demo/results_transition/
-/demo/results_trunk_csv/
-/demo/results_trunk_graph/
-/demo/results_trunk_peek/
 /demo/sts_data_tmp/
