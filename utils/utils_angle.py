@@ -1,4 +1,5 @@
 from math import nan
+from pickle import FALSE
 import numpy as np
 from numpy.core.numeric import NaN
 import pandas as pd
@@ -192,8 +193,10 @@ def stack_coords(stack_list, angle_info):
         i = i + 1
     stack_list.append(tmp_list)
 
-def trandition(input_name, output_list):
-    header_list = ['nose_x', 'nose_y', \
+def trandition(input_name, output_list, fps):
+    x_sec = []
+    tmp = []
+    header_list = ['seconds', 'nose_x', 'nose_y', \
                    'left_eye_x', 'left_eye_y', 'right_eye_x', 'right_eye_y',\
                    'left_ear_x', 'left_ear_y', 'right_ear_x', 'right_ear_y',\
                    'left_shoulder_x', 'left_shoulder_y', 'right_shoulder_x', 'right_shoulder_y',\
@@ -202,8 +205,27 @@ def trandition(input_name, output_list):
                    'left_hip_x', 'left_hip_y', 'right_hip_x', 'right_hip_y',\
                    'left_knee_x', 'left_knee_y', 'right_knee_x', 'right_knee_y',\
                    'left_ankle_x', 'left_ankle_y', 'right_ankle_x', 'right_ankle_y']
-    x: float = 0.0
-
     save_path = './results_transition/' + input_name + '_trans.csv'
-    df = pd.DataFrame(output_list, columns=header_list)
+
+    ran = len(output_list[0:])
+    s_list = mksec(ran, fps)
+    print(np.array(s_list).T)
+    print(output_list)
+
+    for i in range(ran):
+        tmp_s = s_list[i]
+        tmp_o = output_list[i]
+        tmp_a = tmp_s + tmp_o
+        tmp.append(tmp_a)
+
+    df = pd.DataFrame(tmp, columns=header_list, index=None)
     df.to_csv(save_path)
+
+
+def mksec(lrange, fps):
+    x_sec=[]
+    x: float = 0.0
+    for a in range(lrange):
+        sec = a / fps
+        x_sec.append([round(float(sec), 2)])
+    return x_sec
