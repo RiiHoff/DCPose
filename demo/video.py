@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding:utf8 -*-
+from email.feedparser import FeedParser
 import os
 import os.path as osp
 from pickle import FALSE
@@ -227,23 +228,22 @@ def video():
 
 
             cog_coords = np.array([x_cog, y_cog])
-            csv_angleplt(video_name, nec_res_list, 'nec') # 頸部角度出力
-            csv_angleplt(video_name, tru_res_list, 'hip') # 臀部角度出力
-            csv_angleplt(video_name, kne_res_list, 'kne') # 膝部角度出力
-            csv_angleplt(video_name, ank_res_list, 'ank') # 足部角度出力
+            csv_angleplt(video_name, nec_res_list, '01', 'neck') # 頸部角度出力
+            csv_angleplt(video_name, tru_res_list, '02', 'hip') # 臀部角度出力
+            csv_angleplt(video_name, kne_res_list, '03', 'knee') # 膝部角度出力
+            csv_angleplt(video_name, ank_res_list, '04', 'ankle') # 足部角度出力
             csv_cogplt(video_name, cog_coords.transpose())
             trandition(video_name, angle_sum_list) # 座標のデータ出力
             # angle_peek(video_name, angle_list, fps) # 最大角度，最小角度の値とそのフレーム数
-            angleplt_smo(video_name, frame_nlist, nec_angle_list, fps, 'nec') # 角度推移のグラフ
+            angleplt_smo(video_name, frame_nlist, nec_angle_list, fps, '01', 'neck') # 角度推移のグラフ
             plt.pause(2)
-            angleplt_smo(video_name, frame_nlist, tru_angle_list, fps, 'hip') # 角度推移のグラフ
+            angleplt_smo(video_name, frame_nlist, tru_angle_list, fps, '02', 'hip') # 角度推移のグラフ
             plt.pause(2)
-            angleplt_smo(video_name, frame_nlist, kne_angle_list, fps, 'kne') # 角度推移のグラフ
+            angleplt_smo(video_name, frame_nlist, kne_angle_list, fps, '03', 'knee') # 角度推移のグラフ
             plt.pause(2)
-            angleplt_smo(video_name, frame_nlist, ank_angle_list, fps, 'ank') # 角度推移のグラフ
+            angleplt_smo(video_name, frame_nlist, ank_angle_list, fps, '04', 'ankle') # 角度推移のグラフ
             plt.pause(2)
-            # angleplt_cog(video_name + '_cog', frame_nlist, x_cog, y_cog, fps) # 重心推移のグラフ
-
+            # angleplt_cog(video_name + '_cog', frame_nlist, x_cog, y_cog, fps) # 重心推移のグラフ]
 
 
                 
