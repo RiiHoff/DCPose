@@ -19,8 +19,8 @@ from utils.utils_video import video2images, image2video
 from utils.utils_image import read_image, save_image
 from utils.utils_json import write_json_to_file
 from engine.core.vis_helper import add_poseTrack_joint_connection_to_image, add_bbox_in_image
-from utils.utils_angle import hip_cul, csvplt, csv_angleplt, csv_cogplt, output, angleplt, angleplt_smo, angleplt_cog, coordplt, stack_coords, trandition, mksec
-from utils.utils_peek import angle_peek
+from utils.utils_angle import hip_cul, csvplt, csv_angleplt, csv_cogplt, output, angleplt, angleplt_smo, angleplt_cog, coordplt, stack_coords, trandition
+from utils.utils_peek import angle_peek 
 from utils.utils_lumina import lumina, lumina_ex
 from utils.utils_cog import cog_cul, cog_plt 
 from utils.utils_calculation import rounding, round_dp2
@@ -234,7 +234,7 @@ def video():
             csv_angleplt(video_name, kne_res_list, '03', 'knee') # 膝部角度出力
             csv_angleplt(video_name, ank_res_list, '04', 'ankle') # 足部角度出力
             csv_cogplt(video_name, cog_coords.transpose())
-            trandition(video_name, angle_sum_list, fps) # 座標のデータ出力
+            trandition(video_name, angle_sum_list) # 座標のデータ出力
             # angle_peek(video_name, angle_list, fps) # 最大角度，最小角度の値とそのフレーム数
             angleplt_smo(video_name, frame_nlist, nec_angle_list, fps, '01', 'neck') # 角度推移のグラフ
             plt.pause(2)
